@@ -24,12 +24,11 @@ public class GUI {
 
   // Buttons
 
-  private JButton refreshButton = new JButton("Obnoviť");
-  private JButton exportButton = new JButton("Exportovať");
-
   private JButton bookAddButton = new JButton("Pridať knihu");
   private JButton bookEditButton = new JButton("Upraviť knihu");
   private JButton bookDeleteButton = new JButton("Vymazať knihu");
+  private JButton borrowBookButton = new JButton("Požičať knihu");
+  private JButton returnBookButton = new JButton("Vrátiť knihu");
 
   private JButton userAddButton = new JButton("Pridať čitatela");
   private JButton userEditButton = new JButton("Upraviť čitatela");
@@ -41,10 +40,11 @@ public class GUI {
   private JScrollPane bookScrollPanel;
   private JScrollPane userScrollPanel;
   private JScrollPane historyScrollPanel;
+  private DefaultTableModel bookModel;
   private JTable bookTable;
   private DefaultTableModel userModel;
   private JTable userTable;
-  private DefaultTableModel bookModel;
+  private DefaultTableModel historyModel;
   private JTable historyTable;
   private JFormattedTextField dobTextField;
   private JFormattedTextField opTextField = new JFormattedTextField();
@@ -60,11 +60,12 @@ public class GUI {
     mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
     navPanel = new JPanel();
     navPanel.setBackground(Color.LIGHT_GRAY);
-    navPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 20, 0));
+    navPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 20, 0));
 
     // NAV PANEL
-    navPanel.add(refreshButton);
-    navPanel.add(exportButton);
+    JLabel heading = new JLabel("Knižnica");
+    heading.setFont(new Font("Times New Roman", heading.getFont().getStyle(), 20));
+    navPanel.add(heading);
 
     // BOOKS
     JPanel bookPanel = new JPanel();
@@ -74,7 +75,7 @@ public class GUI {
     bookLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
     bookLabel.setFont(new Font(bookLabel.getFont().getName(), bookLabel.getFont().getStyle(), 20));
 
-    String[] bookColoumnNames = { "ID", "Názov", "Autor", "Príznak" };
+    String[] bookColoumnNames = { "ID", "Názov", "Autor", "Požičaná" };
     bookModel = new DefaultTableModel(bookColoumnNames, 0);
     for (int i = 0; i < manager.books.size(); i++) {
       Book tempBook = manager.books.get(i);
@@ -91,6 +92,8 @@ public class GUI {
     bookScrollPanel.setBorder(new EmptyBorder(10, 100, 10, 100));
 
     JPanel bookButtonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 0));
+    bookButtonPanel.add(borrowBookButton);
+    bookButtonPanel.add(returnBookButton);
     bookButtonPanel.add(bookAddButton);
     bookButtonPanel.add(bookDeleteButton);
     bookButtonPanel.add(bookEditButton);
@@ -143,17 +146,24 @@ public class GUI {
     JLabel historyLabel = new JLabel("História");
     historyLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
     historyLabel.setFont(new Font(historyLabel.getFont().getName(), historyLabel.getFont().getStyle(), 20));
-    String[][] historyData = {
-        { "1", "1111", "21.5.2025", "-" },
-        { "3", "3333", "22.5.2025", "22.6.2025" },
-        { "7", "7777", "22.7.2025", "-" },
-        { "6", "6666", "10.10.2025", "10.5.2026" }
-    };
+
     String[] histroyColoumns = { "ID", "Číslo OP", "Dátum Požičania", "Dátum Vrátenia" };
-    historyTable = new JTable(historyData, histroyColoumns);
+    historyModel = new DefaultTableModel(histroyColoumns, 0);
+    for (int i = 0; i < manager.histories.size(); i++) {
+      History temp = manager.histories.get(i);
+      historyModel.addRow(new Object[] {
+          temp.getBookId(),
+          temp.getUserOp(),
+          temp.getBorrowDate(),
+          temp.getReturnDate()
+      });
+    }
+    historyTable = new JTable(historyModel);
     historyTable.setFont(new Font("Times New Roman", historyTable.getFont().getStyle(), 14));
+
     historyScrollPanel = new JScrollPane(historyTable);
     historyScrollPanel.setBorder(new EmptyBorder(10, 100, 10, 100));
+
     historyPanel.add(historyLabel);
     historyPanel.add(Box.createVerticalStrut(10));
     historyPanel.add(historyScrollPanel);
@@ -175,18 +185,6 @@ public class GUI {
   private void handelEvents() {
 
     // BUTTON EVENTS
-    refreshButton.addActionListener(new ActionListener() {
-      @Override
-      public void actionPerformed(ActionEvent event) {
-        mainFrame.repaint();
-      }
-    });
-    exportButton.addActionListener(new ActionListener() {
-      @Override
-      public void actionPerformed(ActionEvent event) {
-        // export the data into a csv
-      }
-    });
     bookAddButton.addActionListener(new ActionListener() {
       @Override
       public void actionPerformed(ActionEvent event) {
@@ -228,6 +226,126 @@ public class GUI {
           int id = (int) bookTable.getValueAt(bookTable.getSelectedRow(), 0);
           Book book = manager.getBookById(id);
           showEditBookFrame(book);
+        }
+      }
+    });
+    borrowBookButton.addActionListener(new ActionListener() {
+      @Override
+      public void actionPerformed(ActionEvent event) {
+        if (bookTable.getSelectedRow() == -1 || userTable.getSelectedRow() == -1) {
+          JOptionPane.showMessageDialog(null, "Prosím vyberte knihu na požičanie a čitateľa");
+          return;
+        } else {
+          // filter out the name if there is one
+          String rawString = String.valueOf(bookTable.getValueAt(bookTable.getSelectedRow(), 3));
+          boolean value = Boolean.parseBoolean(rawString.substring(0, 5).trim());
+          if (value) {
+            JOptionPane.showMessageDialog(null, "Kniha je už požičaná");
+            return;
+          } else {
+            int id = (int) bookTable.getValueAt(bookTable.getSelectedRow(), 0);
+            Long op = (Long) userTable.getValueAt(userTable.getSelectedRow(), 0);
+            Book book = manager.getBookById(id);
+            User user = manager.getUserByOp(op);
+            History newHistory = new History(book.getId(),
+                user.getOp(),
+                LocalDate.now(),
+                null);
+            manager.addHistory(newHistory);
+            data.writeHistory(newHistory);
+            historyModel.addRow(new Object[] {
+                newHistory.getBookId(),
+                newHistory.getUserOp(),
+                newHistory.getBorrowDate(),
+                newHistory.getReturnDate() });
+
+            data.deleteBook(book.getId());
+            manager.removeBook(book.getId());
+            bookModel.removeRow(bookTable.getSelectedRow());
+
+            Book newBook = new Book(
+                book.getId(),
+                book.getBookName(),
+                book.getAuthor(),
+                true);
+
+            data.writeBook(newBook);
+            manager.addBook(newBook);
+            bookModel.addRow(new Object[] {
+                newBook.getId(),
+                newBook.getBookName(),
+                newBook.getAuthor(),
+                newBook.getTaken() + "  ( " + user.getName() + " " + user.getSurname() + " )"
+            });
+          }
+        }
+      }
+    });
+    returnBookButton.addActionListener(new ActionListener() {
+      @Override
+      public void actionPerformed(ActionEvent event) {
+        if (bookTable.getSelectedRow() == -1 || userTable.getSelectedRow() == -1) {
+          JOptionPane.showMessageDialog(null, "Prosím vyberte knihu na vrátenie a čitateľa");
+          return;
+        } else {
+          int id = (int) bookTable.getValueAt(bookTable.getSelectedRow(), 0);
+          Long op = (Long) userTable.getValueAt(userTable.getSelectedRow(), 0);
+          Book book = manager.getBookById(id);
+          History history = manager.getHistoryByIdAndOp(id, op);
+          if (history == null || book == null) {
+            JOptionPane.showMessageDialog(null, "Nenašla sa táto kniha pri tomto čitateľovi");
+            return;
+          }
+          // delete the book and make a new one
+          data.deleteBook(book.getId());
+          int index1 = manager.removeBook(book.getId());
+          if (index1 != -1) {
+            bookModel.removeRow(bookTable.getSelectedRow());
+          } else {
+            JOptionPane.showMessageDialog(null, "Nastala chyba");
+            return;
+          }
+
+          // edit the book and create it
+          Book newBook = new Book(
+              book.getId(),
+              book.getBookName(),
+              book.getAuthor(),
+              false);
+
+          data.writeBook(newBook);
+          manager.addBook(newBook);
+          bookModel.addRow(new Object[] {
+              newBook.getId(),
+              newBook.getBookName(),
+              newBook.getAuthor(),
+              newBook.getTaken()
+          });
+
+          // remove the old history
+          data.deleteHistory(book.getId(), op);
+          int index = manager.removeHistory(history);
+          if (index != -1) {
+            historyModel.removeRow(index);
+          } else {
+            JOptionPane.showMessageDialog(null, "Nastala chyba");
+            return;
+          }
+
+          // edit the history and crate it
+          History newHistory = new History(
+              history.getBookId(),
+              history.getUserOp(),
+              history.getBorrowDate(),
+              LocalDate.now());
+          data.writeHistory(newHistory);
+          manager.addHistory(newHistory);
+          historyModel.addRow(new Object[] {
+              newHistory.getBookId(),
+              newHistory.getUserOp(),
+              newHistory.getBorrowDate(),
+              newHistory.getReturnDate()
+          });
         }
       }
     });

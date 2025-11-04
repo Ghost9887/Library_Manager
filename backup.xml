@@ -6,7 +6,7 @@
       <id>1</id>
       <nazov>1984</nazov>
       <autor>George Orwell</autor>
-      <pozicana>true</pozicana>
+      <pozicana>false</pozicana>
     </kniha>
     <kniha>
       <id>2</id>
@@ -18,7 +18,7 @@
       <id>3</id>
       <nazov>Sto rokov samoty</nazov>
       <autor>Gabriel García Márquez</autor>
-      <pozicana>true</pozicana>
+      <pozicana>false</pozicana>
     </kniha>
     <kniha>
       <id>4</id>
@@ -30,7 +30,7 @@
       <id>5</id>
       <nazov>Harry Potter a Kameň mudrcov</nazov>
       <autor>J.K. Rowling</autor>
-      <pozicana>true</pozicana>
+      <pozicana>false</pozicana>
     </kniha>
   </knihy>
 
@@ -62,36 +62,7 @@
   </citatelia>
 
   <vypozicky>
-    <vypozicka>
-      <id>1</id>
-      <op>1234567890</op>
-      <datum_vypozicania>2025-10-01</datum_vypozicania>
-      <datum_vratenia/>
-    </vypozicka>
-    <vypozicka>
-      <id>2</id>
-      <op>1234567890</op>
-      <datum_vypozicania>2025-08-10</datum_vypozicania>
-      <datum_vratenia>2025-08-25</datum_vratenia>
-    </vypozicka>
-    <vypozicka>
-      <id>3</id>
-      <op>9876543210</op>
-      <datum_vypozicania>2025-09-15</datum_vypozicania>
-      <datum_vratenia/>
-    </vypozicka>
-    <vypozicka>
-      <id>4</id>
-      <op>5555555555</op>
-      <datum_vypozicania>2025-07-01</datum_vypozicania>
-      <datum_vratenia>2025-07-20</datum_vratenia>
-    </vypozicka>
-    <vypozicka>
-      <id>5</id>
-      <op>1112223334</op>
-      <datum_vypozicania>2025-10-03</datum_vypozicania>
-      <datum_vratenia/>
-    </vypozicka>
+    
   </vypozicky>
 
 </kniznica>

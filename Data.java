@@ -52,9 +52,75 @@ public class Data {
             LocalDate.parse(user.getElementsByTagName("datum_narodenia").item(0).getTextContent()));
         manager.addUser(newUser);
       }
+
+      // historia
+      NodeList historyList = doc.getElementsByTagName("vypozicka");
+      for (int i = 0; i < historyList.getLength(); i++) {
+        Element history = (Element) historyList.item(i);
+        int id = Integer.parseInt(history.getElementsByTagName("id").item(0).getTextContent());
+        long op = Long.parseLong(history.getElementsByTagName("op").item(0).getTextContent());
+        LocalDate borrowDate = null;
+        LocalDate returnDate = null;
+        Node borrowNode = history.getElementsByTagName("datum_vypozicania").item(0);
+        if (borrowNode != null && borrowNode.getTextContent() != null && !borrowNode.getTextContent().isEmpty()) {
+          borrowDate = LocalDate.parse(borrowNode.getTextContent());
+        }
+        Node returnNode = history.getElementsByTagName("datum_vratenia").item(0);
+        if (returnNode != null && returnNode.getTextContent() != null && !returnNode.getTextContent().isEmpty()) {
+          returnDate = LocalDate.parse(returnNode.getTextContent());
+        }
+        History newHistory = new History(id, op, borrowDate, returnDate);
+        manager.addHistory(newHistory);
+      }
+
     } catch (Exception e) {
       e.printStackTrace();
     }
+  }
+
+  public void writeHistory(History history) {
+    try {
+      System.out.println(filePath);
+      File xmlFile = new File(filePath);
+      DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+      DocumentBuilder builder = factory.newDocumentBuilder();
+      Document doc = builder.parse(xmlFile);
+      doc.getDocumentElement().normalize();
+
+      Element newHistory = doc.createElement("vypozicka");
+
+      Element id = doc.createElement("id");
+      id.appendChild(doc.createTextNode(String.valueOf(history.getBookId())));
+      newHistory.appendChild(id);
+
+      Element op = doc.createElement("op");
+      op.appendChild(doc.createTextNode(String.valueOf(history.getUserOp())));
+      newHistory.appendChild(op);
+
+      Element borrowDate = doc.createElement("datum_vypozicania");
+      borrowDate.appendChild(doc.createTextNode(String.valueOf(history.getBorrowDate())));
+      newHistory.appendChild(borrowDate);
+
+      Element returnDate = doc.createElement("datum_vratenia");
+      String returnDateValue = history.getReturnDate() != null ? String.valueOf(history.getReturnDate()) : "";
+      returnDate.appendChild(doc.createTextNode(returnDateValue));
+      newHistory.appendChild(returnDate);
+
+      Node library = doc.getElementsByTagName("vypozicky").item(0);
+      library.appendChild(newHistory);
+
+      TransformerFactory transformerFactory = TransformerFactory.newInstance();
+      Transformer transformer = transformerFactory.newTransformer();
+      transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+      DOMSource source = new DOMSource(doc);
+      StreamResult result = new StreamResult(xmlFile);
+      transformer.transform(source, result);
+
+      System.out.println("New history added");
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+
   }
 
   public void writeBook(Book book) {
@@ -138,6 +204,38 @@ public class Data {
       transformer.transform(source, result);
 
       System.out.println("New user added");
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+
+  }
+
+  public void deleteHistory(int id, Long op) {
+    try {
+      File xmlFile = new File(filePath);
+      DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+      DocumentBuilder builder = factory.newDocumentBuilder();
+      Document doc = builder.parse(xmlFile);
+      doc.getDocumentElement().normalize();
+      NodeList citatelList = doc.getElementsByTagName("vypozicka");
+      for (int i = 0; i < citatelList.getLength(); i++) {
+        Element book = (Element) citatelList.item(i);
+        String newid = book.getElementsByTagName("id").item(0).getTextContent();
+        String newOp = book.getElementsByTagName("op").item(0).getTextContent();
+        if (newid.equals(String.valueOf(id)) && newOp.equals(String.valueOf(op))) {
+          book.getParentNode().removeChild(book);
+          break;
+        }
+      }
+
+      TransformerFactory transformerFactory = TransformerFactory.newInstance();
+      Transformer transformer = transformerFactory.newTransformer();
+      transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+      DOMSource source = new DOMSource(doc);
+      StreamResult result = new StreamResult(xmlFile);
+      transformer.transform(source, result);
+
+      System.out.println("History removed");
     } catch (Exception e) {
       e.printStackTrace();
     }
