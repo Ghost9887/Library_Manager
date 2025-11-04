@@ -527,7 +527,7 @@ public class GUI {
 
   private void showEditBookFrame(Book book) {
     // vytvorit nove okienko
-    JFrame frame = new JFrame("Pridať Knihu");
+    JFrame frame = new JFrame("Upraviť Knihu");
     frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
     frame.setSize(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2);
     frame.setLocationRelativeTo(null);
@@ -538,7 +538,7 @@ public class GUI {
     gbc.insets = new Insets(10, 10, 10, 10);
     gbc.fill = GridBagConstraints.HORIZONTAL;
 
-    JLabel heading = new JLabel("Pridať Knihu");
+    JLabel heading = new JLabel("Upraviť Knihu");
     heading.setFont(new Font("Serif", Font.BOLD, 20));
     heading.setHorizontalAlignment(SwingConstants.CENTER);
     gbc.gridx = 0;
