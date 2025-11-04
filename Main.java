@@ -20,10 +20,10 @@
     Pred prezentáciou naplňte aplikáciu niekoľkými vzorovými údajmi
 */
 
-public class Main{
-  public static void main(String[] args){
+public class Main {
+  public static void main(String[] args) {
     Manager manager = new Manager();
-    new Data(manager).readData("data.xml");
+    new Data(manager).readData();
     new GUI(manager).run();
   }
 }

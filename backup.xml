@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<kniznica>
+
+  <knihy>
+    <kniha>
+      <id>1</id>
+      <nazov>1984</nazov>
+      <autor>George Orwell</autor>
+      <pozicana>true</pozicana>
+    </kniha>
+    <kniha>
+      <id>2</id>
+      <nazov>Malý princ</nazov>
+      <autor>Antoine de Saint-Exupéry</autor>
+      <pozicana>false</pozicana>
+    </kniha>
+    <kniha>
+      <id>3</id>
+      <nazov>Sto rokov samoty</nazov>
+      <autor>Gabriel García Márquez</autor>
+      <pozicana>true</pozicana>
+    </kniha>
+    <kniha>
+      <id>4</id>
+      <nazov>Veľký Gatsby</nazov>
+      <autor>F. Scott Fitzgerald</autor>
+      <pozicana>false</pozicana>
+    </kniha>
+    <kniha>
+      <id>5</id>
+      <nazov>Harry Potter a Kameň mudrcov</nazov>
+      <autor>J.K. Rowling</autor>
+      <pozicana>true</pozicana>
+    </kniha>
+  </knihy>
+
+  <citatelia>
+    <citatel>
+      <op>1234567890</op>
+      <meno>Jakub</meno>
+      <priezvisko>Ducho</priezvisko>
+      <datum_narodenia>2000-05-05</datum_narodenia>
+    </citatel>
+    <citatel>
+      <op>9876543210</op>
+      <meno>Lucia</meno>
+      <priezvisko>Horváthová</priezvisko>
+      <datum_narodenia>1998-03-22</datum_narodenia>
+    </citatel>
+    <citatel>
+      <op>5555555555</op>
+      <meno>Martin</meno>
+      <priezvisko>Kováč</priezvisko>
+      <datum_narodenia>1980-11-11</datum_narodenia>
+    </citatel>
+    <citatel>
+      <op>1112223334</op>
+      <meno>Eva</meno>
+      <priezvisko>Novotná</priezvisko>
+      <datum_narodenia>2002-07-19</datum_narodenia>
+    </citatel>
+  </citatelia>
+
+  <vypozicky>
+    <vypozicka>
+      <id>1</id>
+      <op>1234567890</op>
+      <datum_vypozicania>2025-10-01</datum_vypozicania>
+      <datum_vratenia/>
+    </vypozicka>
+    <vypozicka>
+      <id>2</id>
+      <op>1234567890</op>
+      <datum_vypozicania>2025-08-10</datum_vypozicania>
+      <datum_vratenia>2025-08-25</datum_vratenia>
+    </vypozicka>
+    <vypozicka>
+      <id>3</id>
+      <op>9876543210</op>
+      <datum_vypozicania>2025-09-15</datum_vypozicania>
+      <datum_vratenia/>
+    </vypozicka>
+    <vypozicka>
+      <id>4</id>
+      <op>5555555555</op>
+      <datum_vypozicania>2025-07-01</datum_vypozicania>
+      <datum_vratenia>2025-07-20</datum_vratenia>
+    </vypozicka>
+    <vypozicka>
+      <id>5</id>
+      <op>1112223334</op>
+      <datum_vypozicania>2025-10-03</datum_vypozicania>
+      <datum_vratenia/>
+    </vypozicka>
+  </vypozicky>
+
+</kniznica>
+
