@@ -9,6 +9,9 @@ Uses XML to hold all data
 
 <img width="1133" height="727" alt="obrázok" src="https://github.com/user-attachments/assets/6a8037e3-a619-4f3b-9781-fd3c28a1de44" />
 
+<img width="1130" height="727" alt="obrázok" src="https://github.com/user-attachments/assets/689fd0f4-8cdb-4918-b69b-bd372a7bd960" />
+
+
 
 
 
