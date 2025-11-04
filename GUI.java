@@ -271,12 +271,21 @@ public class GUI {
 
             data.writeBook(newBook);
             manager.addBook(newBook);
-            bookModel.addRow(new Object[] {
-                newBook.getId(),
-                newBook.getBookName(),
-                newBook.getAuthor(),
-                newBook.getTaken() + "  ( " + user.getName() + " " + user.getSurname() + " )"
-            });
+            if (newBook.getTaken()) {
+              bookModel.addRow(new Object[] {
+                  newBook.getId(),
+                  newBook.getBookName(),
+                  newBook.getAuthor(),
+                  newBook.getTaken() + "  ( " + user.getName() + " " + user.getSurname() + " )"
+              });
+            } else {
+              bookModel.addRow(new Object[] {
+                  newBook.getId(),
+                  newBook.getBookName(),
+                  newBook.getAuthor(),
+                  newBook.getTaken() + "  ( " + user.getName() + " " + user.getSurname() + " )"
+              });
+            }
           }
         }
       }
