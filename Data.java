@@ -78,6 +78,7 @@ public class Data {
     }
   }
 
+  // zapisat historiu
   public void writeHistory(History history) {
     try {
       System.out.println(filePath);
@@ -123,6 +124,7 @@ public class Data {
 
   }
 
+  // zapisat novu knihu
   public void writeBook(Book book) {
     try {
       System.out.println(filePath);
@@ -166,6 +168,7 @@ public class Data {
 
   }
 
+  // zapisat noveho citatela
   public void writeUser(User user) {
     try {
       System.out.println(filePath);
@@ -210,6 +213,7 @@ public class Data {
 
   }
 
+  // zmazat historiu
   public void deleteHistory(int id, Long op) {
     try {
       File xmlFile = new File(filePath);
@@ -242,6 +246,7 @@ public class Data {
 
   }
 
+  // zmazat knihu
   public void deleteBook(int id) {
     try {
       File xmlFile = new File(filePath);
@@ -274,6 +279,7 @@ public class Data {
 
   }
 
+  // zmazat citatela
   public void deleteUser(Long op) {
     try {
       File xmlFile = new File(filePath);

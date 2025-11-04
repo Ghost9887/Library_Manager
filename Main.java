@@ -22,8 +22,12 @@
 
 public class Main {
   public static void main(String[] args) {
+    // vytvorime si jednu instanciu tohto objektu ktory budeme pouzivat vsade
     Manager manager = new Manager();
+    // precitat xml a zobrat vsetky udaje a dat ich do listou ktore mam v
+    // Manager.java
     new Data(manager).readData();
+    // zacat program
     new GUI(manager).run();
   }
 }

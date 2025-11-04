@@ -1,7 +1,9 @@
 import java.util.ArrayList;
 
+//Kominukacia medzi datami a frontendom 
 public class Manager {
 
+  // data s xml do tychto budeme pridavat a zmazat pocas programu
   public ArrayList<Book> books = new ArrayList<>();
   public ArrayList<User> users = new ArrayList<>();
   public ArrayList<History> histories = new ArrayList<>();

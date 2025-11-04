@@ -11,6 +11,7 @@ import java.time.format.DateTimeParseException;
 
 public class GUI {
 
+  // Iba jeden Manager musime pouzivat
   private Manager manager;
 
   public GUI(Manager manager) {
@@ -19,11 +20,11 @@ public class GUI {
 
   private Data data = new Data(manager);
 
+  // Velkost obrazovky(da sa zvacsit a zmensit)
   private final int SCREEN_WIDTH = 1200;
   private final int SCREEN_HEIGHT = 800;
 
   // Buttons
-
   private JButton bookAddButton = new JButton("Pridať knihu");
   private JButton bookEditButton = new JButton("Upraviť knihu");
   private JButton bookDeleteButton = new JButton("Vymazať knihu");
@@ -49,10 +50,12 @@ public class GUI {
   private JFormattedTextField dobTextField;
   private JFormattedTextField opTextField = new JFormattedTextField();
 
+  // hlavna funkcia
   public void run() {
     createFrame();
   }
 
+  // nakreslit a nastylovat UI
   public void createFrame() {
     mainFrame = new JFrame();
     mainFrame.setLayout(new BorderLayout());
@@ -179,6 +182,7 @@ public class GUI {
     mainFrame.setLocationRelativeTo(null);
     mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
+    // spusitit eventy
     handelEvents();
   }
 
@@ -194,6 +198,7 @@ public class GUI {
     bookDeleteButton.addActionListener(new ActionListener() {
       @Override
       public void actionPerformed(ActionEvent event) {
+        // ak nemame oznaceny ziadny stlpec tak vyhody chybu
         if (bookTable.getSelectedRow() == -1) {
           JOptionPane.showMessageDialog(null, "Prosím vyberte knihu");
           return;
@@ -201,12 +206,18 @@ public class GUI {
           int res = JOptionPane.showConfirmDialog(null, "Naozaj chcete odstrániť túto knihu?", "Potvrdnie",
               JOptionPane.OK_CANCEL_OPTION);
           if (res == JOptionPane.OK_OPTION) {
+            // dostat id knihy zo stlpca
             int id = (int) bookTable.getValueAt(bookTable.getSelectedRow(), 0);
+            // pouzivat id knihy na zmazanie knihy s XML suboru
             data.deleteBook(id);
+            // dostat index v liste a zmazat knihu aj tam(index potrebujeme nato aby sme
+            // mohli zmazat aj v tabulke kedze maju vzdy rovnaky)
             int index = manager.removeBook(id);
             if (index != -1) {
+              // zmazat s tabulky
               bookModel.removeRow(index);
             } else {
+              // keby nahodou sa nieco pokazilo tak sa to zrusi a upozorni uzivatela
               JOptionPane.showMessageDialog(null, "Stala sa chyba pri odstránovaní knihy!");
               return;
             }
@@ -219,12 +230,16 @@ public class GUI {
     bookEditButton.addActionListener(new ActionListener() {
       @Override
       public void actionPerformed(ActionEvent event) {
+        // ak nemame oznaceny ziadny stlpec tak vyhody chybu
         if (bookTable.getSelectedRow() == -1) {
           JOptionPane.showMessageDialog(null, "Prosím vyberte knihu");
           return;
         } else {
+          // dostat id knihy
           int id = (int) bookTable.getValueAt(bookTable.getSelectedRow(), 0);
+          // vytvorit object a posunut o do dalsej funkcie
           Book book = manager.getBookById(id);
+          // zobrazi sa okienko
           showEditBookFrame(book);
         }
       }
@@ -236,17 +251,25 @@ public class GUI {
           JOptionPane.showMessageDialog(null, "Prosím vyberte knihu na požičanie a čitateľa");
           return;
         } else {
-          // filter out the name if there is one
+          // musime sa vyfiltrovat meno v tomto poli kedze aj to tam mam (true (meno) <-
+          // dame prec) aby sme to mohli konvertovat na boolean a pouzit
+
           String rawString = String.valueOf(bookTable.getValueAt(bookTable.getSelectedRow(), 3));
           boolean value = Boolean.parseBoolean(rawString.substring(0, 5).trim());
+
+          // pozreme ci tato kniha neni uz nahodou pozicana ak ano tak upozornime
+          // uzivatela
           if (value) {
             JOptionPane.showMessageDialog(null, "Kniha je už požičaná");
             return;
           } else {
+            // ak nie tak mu vytvorime novu historiu v ktorej dame dnesny datum pomocou
+            // LocalDate.now()
             int id = (int) bookTable.getValueAt(bookTable.getSelectedRow(), 0);
             Long op = (Long) userTable.getValueAt(userTable.getSelectedRow(), 0);
             Book book = manager.getBookById(id);
             User user = manager.getUserByOp(op);
+            // Vytvorit novu historiu(log)
             History newHistory = new History(book.getId(),
                 user.getOp(),
                 LocalDate.now(),
@@ -259,17 +282,23 @@ public class GUI {
                 newHistory.getBorrowDate(),
                 newHistory.getReturnDate() });
 
+            // kedze potrebujeme aj upravit knihu ze uz je pozicana musime spravit to
+            // iste ako aj ked dame upravit ze vymazeme staru knihu a nahradime to istou s
+            // upravenmi udajmi
             data.deleteBook(book.getId());
             manager.removeBook(book.getId());
             bookModel.removeRow(bookTable.getSelectedRow());
 
+            // vytvorit kopiu starej a zmenime ze je pozicana
             Book newBook = new Book(
                 book.getId(),
                 book.getBookName(),
                 book.getAuthor(),
                 true);
 
+            // nahrame do XML
             data.writeBook(newBook);
+            // nahrame do listu ktory pouzivame pre tabulky
             manager.addBook(newBook);
             if (newBook.getTaken()) {
               bookModel.addRow(new Object[] {
@@ -293,19 +322,23 @@ public class GUI {
     returnBookButton.addActionListener(new ActionListener() {
       @Override
       public void actionPerformed(ActionEvent event) {
+        // skontrolovat ci mame vybrate vyzadovane polia
         if (bookTable.getSelectedRow() == -1 || userTable.getSelectedRow() == -1) {
           JOptionPane.showMessageDialog(null, "Prosím vyberte knihu na vrátenie a čitateľa");
           return;
         } else {
+          // ak ano
           int id = (int) bookTable.getValueAt(bookTable.getSelectedRow(), 0);
           Long op = (Long) userTable.getValueAt(userTable.getSelectedRow(), 0);
           Book book = manager.getBookById(id);
+          // pozreme sa ci vybrate udaje sedia (kniha -> citatel)
           History history = manager.getHistoryByIdAndOp(id, op);
+          // ak nie tak vyhodime chybu
           if (history == null || book == null) {
             JOptionPane.showMessageDialog(null, "Nenašla sa táto kniha pri tomto čitateľovi");
             return;
           }
-          // delete the book and make a new one
+          // ak ano tak zase vymazame staru knihu a nahradime kopiou novou
           data.deleteBook(book.getId());
           int index1 = manager.removeBook(book.getId());
           if (index1 != -1) {
@@ -315,7 +348,7 @@ public class GUI {
             return;
           }
 
-          // edit the book and create it
+          // upravit a vytvorit kopiu
           Book newBook = new Book(
               book.getId(),
               book.getBookName(),
@@ -331,7 +364,7 @@ public class GUI {
               newBook.getTaken()
           });
 
-          // remove the old history
+          // zmazat stary zaznam s historie a nahradime novym s dnesnym datumom
           data.deleteHistory(book.getId(), op);
           int index = manager.removeHistory(history);
           if (index != -1) {
@@ -341,7 +374,6 @@ public class GUI {
             return;
           }
 
-          // edit the history and crate it
           History newHistory = new History(
               history.getBookId(),
               history.getUserOp(),
@@ -361,21 +393,25 @@ public class GUI {
     userAddButton.addActionListener(new ActionListener() {
       @Override
       public void actionPerformed(ActionEvent event) {
+        // zobrazi sa okienko
         showUserAddFrame();
-
       }
     });
     userDeleteButton.addActionListener(new ActionListener() {
       @Override
       public void actionPerformed(ActionEvent event) {
+        // skontrolovat ci mame vybrate pozadovane polia
         if (userTable.getSelectedRow() == -1) {
           JOptionPane.showMessageDialog(null, "Prosím vyberte čitateľa");
           return;
         } else {
+          /// ak ano
           int res = JOptionPane.showConfirmDialog(null, "Naozaoj chcete odstrániť tohto čitateľa?", "Povrdenie",
               JOptionPane.OK_CANCEL_OPTION);
           if (res == JOptionPane.OK_OPTION) {
+            // najdeme op oznaceneho citatela
             Long op = (Long) userTable.getValueAt(userTable.getSelectedRow(), 0);
+            // vymazeme pomocou op
             data.deleteUser(op);
             int index = manager.removeUser(op);
             if (index != -1) {
@@ -397,6 +433,7 @@ public class GUI {
           JOptionPane.showMessageDialog(null, "Prosím vyberte čitateľa");
           return;
         } else {
+          // najdeme citatela ktoreho mame oznaceny
           Long op = (Long) userTable.getValueAt(userTable.getSelectedRow(), 0);
           User user = manager.getUserByOp(op);
           showEditUserFrame(user);
@@ -406,6 +443,7 @@ public class GUI {
   }
 
   private void showAddBookFrame() {
+    // vytvorit nove okienko
     JFrame frame = new JFrame("Pridať Knihu");
     frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
     frame.setSize(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2);
@@ -432,7 +470,6 @@ public class GUI {
     gbc.gridy = 1;
     panel.add(idLabel, gbc);
 
-    // Spinner only takes numbers and looks nicer
     JSpinner idTextField = new JSpinner(new SpinnerNumberModel(0, 0, 1000, 1));
     gbc.gridx = 1;
     panel.add(idTextField, gbc);
@@ -459,13 +496,17 @@ public class GUI {
     addButton.addActionListener(new ActionListener() {
       @Override
       public void actionPerformed(ActionEvent event) {
+        // vytvorime novu knihu s udajmi s polia
         Book newBook = new Book(
             (int) idTextField.getValue(),
             nameTextField.getText(),
             authorTextField.getText(),
             false);
+        // zapiseme do XML
         data.writeBook(newBook);
+        // zapiseme do nasho listu
         manager.addBook(newBook);
+        // pridat do tabulky
         bookModel.addRow(new Object[] {
             newBook.getId(),
             newBook.getBookName(),
@@ -485,6 +526,7 @@ public class GUI {
   }
 
   private void showEditBookFrame(Book book) {
+    // vytvorit nove okienko
     JFrame frame = new JFrame("Pridať Knihu");
     frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
     frame.setSize(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2);
@@ -511,7 +553,6 @@ public class GUI {
     gbc.gridy = 1;
     panel.add(idLabel, gbc);
 
-    // Spinner only takes numbers and looks nicer
     JSpinner idTextField = new JSpinner(new SpinnerNumberModel(0, 0, 1000, 1));
     idTextField.setValue((int) book.getId());
     gbc.gridx = 1;
@@ -542,6 +583,9 @@ public class GUI {
       @Override
       public void actionPerformed(ActionEvent event) {
 
+        // editaciu som spravil tak ze najskor vymazame stary a potom vytvorime novy na
+        // jeho mieste
+        // Vymazat stary
         data.deleteBook(book.getId());
         int index = manager.removeBook(book.getId());
         if (index != -1) {
@@ -550,6 +594,7 @@ public class GUI {
           JOptionPane.showMessageDialog(null, "Stala sa chyba pri upravovaní knihy!");
           return;
         }
+        // vytvorit novy s udajmi si objektov ktore vyplnil pouzivatel
         Book newBook = new Book(
             (int) idTextField.getValue(),
             nameTextField.getText(),
@@ -563,6 +608,7 @@ public class GUI {
             newBook.getAuthor(),
             newBook.getTaken()
         });
+        // zavret okno nakoniec
         frame.dispose();
       }
     });
@@ -576,6 +622,7 @@ public class GUI {
   }
 
   private void showUserAddFrame() {
+    // to iste ako showAddBookFrame len pre citatela
     JFrame frame = new JFrame("Pridať Čitatela");
     frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
     frame.setSize(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2);
@@ -659,7 +706,7 @@ public class GUI {
       @Override
       public void actionPerformed(ActionEvent event) {
 
-        // check for errors
+        // musime si pozriet ci zadane info su spravne ak ne tak vyhodit chyby
         LocalDate dob = null;
         try {
           dob = LocalDate.parse(dobTextField.getText());
@@ -696,6 +743,7 @@ public class GUI {
   }
 
   private void showEditUserFrame(User user) {
+    // to iste ako showEditBookFrame len pre knihy
     JFrame frame = new JFrame("Upraviť Čitatela");
     frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
     frame.setSize(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2);
